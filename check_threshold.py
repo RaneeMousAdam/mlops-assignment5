@@ -1,21 +1,18 @@
-import sys
 import mlflow
+import os
+import sys
 
-run_file = sys.argv[1]
-threshold = float(sys.argv[2])
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
 
-# Read Run ID
-with open(run_file, "r") as f:
+with open("model_info.txt") as f:
     run_id = f.read().strip()
 
-client = mlflow.MlflowClient()
-run = client.get_run(run_id)
-accuracy = run.data.metrics.get("accuracy", 0)
+run = mlflow.get_run(run_id)
+acc = run.data.metrics["accuracy"]
+print(f"Accuracy: {acc}")
 
-print(f"Run ID: {run_id}, Accuracy: {accuracy}")
-
-if accuracy < threshold:
-    print(f"Accuracy {accuracy} below threshold {threshold}. Failing...")
+if acc < 0.85:
+    print("Failed: below threshold")
     sys.exit(1)
-else:
-    print("Threshold passed!")
+
+print("Passed!")
