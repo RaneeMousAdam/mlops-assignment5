@@ -8,24 +8,30 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+      # Checkout code
       - uses: actions/checkout@v4
 
+      # Setup Python
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - run: pip install mlflow scikit-learn dvc
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install mlflow scikit-learn
 
-      - run: dvc pull
+      # (Optional) DVC pull - ignored if fails
+      - name: Pull data
+        run: dvc pull
         continue-on-error: true
 
-      - run: python train.py
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+      # Train model
+      - name: Train Model
+        run: python train.py
 
+      # Upload model_info.txt
       - name: Upload model info
         uses: actions/upload-artifact@v4
-        continue-on-error: true
         with:
           name: model-info
           path: model_info.txt
@@ -34,20 +40,28 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     steps:
+      # Checkout code
       - uses: actions/checkout@v4
 
+      # Setup Python
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - run: pip install mlflow
+      # Install MLflow
+      - name: Install MLflow
+        run: pip install mlflow
 
-      - uses: actions/download-artifact@v4
+      # Download artifact
+      - name: Download model info
+        uses: actions/download-artifact@v4
         with:
           name: model-info
 
-      - run: python check_threshold.py
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+      # Check accuracy threshold
+      - name: Check Accuracy
+        run: python check_threshold.py model_info.txt 0.85
 
-      - run: echo "Building Docker image for Run ID $(cat model_info.txt)"
+      # Mock Docker build
+      - name: Build Docker Image
+        run: echo "Building Docker image for Run ID $(cat model_info.txt)"
