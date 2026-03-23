@@ -23,7 +23,9 @@ jobs:
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload model info
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: model-info
           path: model_info.txt
