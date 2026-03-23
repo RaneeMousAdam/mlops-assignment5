@@ -1,10 +1,9 @@
-import mlflow
 import sys
 
 with open("model_info.txt", "r") as f:
     accuracy = float(f.read().strip())
 
-print(f"Accuracy: {accuracy}")
+print(f"Checked Accuracy: {accuracy}")
 
 if accuracy < 0.85:
     print("*_* Model failed")

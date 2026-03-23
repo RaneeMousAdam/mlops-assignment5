@@ -1,5 +1,5 @@
-import mlflow
-import random
+# import mlflow
+# import random
 # random.seed(42)
 
 # # لو عندك secret هيتاخد من GitHub
@@ -15,11 +15,10 @@ import random
 #     with open("model_info.txt", "w") as f:
 #         f.write(run.info.run_id)
 
-mlflow.set_tracking_uri("mlruns")
-with mlflow.start_run() as run:
-    accuracy = 0.88
-    print(f"Accuracy: {accuracy}")
-    mlflow.log_metric("accuracy", accuracy)
+import random
 
-    with open("model_info.txt", "w") as f:
-        f.write(str(accuracy))
+accuracy = 0.88  # مثال: ناجح دائم
+
+print(f"Accuracy: {accuracy}")
+with open("model_info.txt", "w") as f:
+    f.write(str(accuracy))

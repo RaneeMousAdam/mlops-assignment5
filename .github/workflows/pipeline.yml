@@ -10,44 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Pull Data
-        run: |
-          echo "Simulate dvc pull"  # لو عندك DVC ممكن تضيفي الأمر الحقيقي
-
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-
-      - name: Install Dependencies
+          python-version: 3.10
+      - name: Install requirements
         run: pip install mlflow
-
-      - name: Train Model
+      - name: Run training
         run: python train.py
-
-      - name: Upload run info
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: model-info
           path: model_info.txt
 
   deploy:
-    runs-on: ubuntu-latest
     needs: validate
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Download run info
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: model-info
           path: .
-
-      - name: Check Accuracy Threshold
+      - name: Check accuracy
         run: python check_threshold.py
-
-      - name: Mock Docker Build
-        run: |
-          RUN_ID=$(cat model_info.txt)
-          echo "Building Docker image for Run ID: $RUN_ID"
+      - name: Mock Docker build
+        run: echo "Building Docker image for accuracy $(cat model_info.txt)"
