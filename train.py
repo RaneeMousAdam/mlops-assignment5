@@ -1,36 +1,24 @@
 import mlflow
-import mlflow.sklearn
-import pandas as pd
-import numpy as np
+import os
+from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.datasets import load_breast_cancer
 
-# Load dataset
-data = load_breast_cancer()
-X = pd.DataFrame(data.data, columns=data.feature_names)
-y = data.target
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train
 with mlflow.start_run() as run:
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(n_estimators=10, random_state=42)
     model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+    acc = accuracy_score(y_test, model.predict(X_test))
+    mlflow.log_metric("accuracy", acc)
 
-    mlflow.log_metric("accuracy", accuracy)
-    mlflow.sklearn.log_model(model, "model")
+    print(f"Accuracy: {acc}")
+    print(f"Run ID: {run.info.run_id}")
 
-    run_id = run.info.run_id
-    print(f"Accuracy: {accuracy}")
-    print(f"Run ID: {run_id}")
-
-    # Write run ID to file for the deploy job
     with open("model_info.txt", "w") as f:
-        f.write(run_id)
+        f.write(run.info.run_id)
