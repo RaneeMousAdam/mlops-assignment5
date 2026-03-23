@@ -4,8 +4,10 @@ ARG RUN_ID
 
 WORKDIR /app
 
-COPY . .
+RUN pip install --no-cache-dir mlflow scikit-learn
 
-RUN echo "Downloading model with Run ID: $RUN_ID"
+RUN echo "Downloading model for Run ID: ${RUN_ID}"
 
-CMD ["echo", "Model ready"]
+COPY train.py .
+
+CMD ["python", "-c", "print('Model container is ready.')"]
