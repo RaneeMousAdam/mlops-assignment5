@@ -17,7 +17,7 @@ import random
 
 mlflow.set_tracking_uri("mlruns")
 with mlflow.start_run() as run:
-    accuracy = 0.88  # اجعليها دائمًا أعلى من 0.85
+    accuracy = 0.88
     print(f"Accuracy: {accuracy}")
     mlflow.log_metric("accuracy", accuracy)
 
