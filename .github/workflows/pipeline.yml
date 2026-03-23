@@ -2,61 +2,41 @@ name: ML Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-
-      - name: Install dependencies
-        run: pip install mlflow scikit-learn dvc
-
-      - name: Pull data
-        run: dvc pull
-
-      - name: Train model
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          python-version: 3.10
+      - name: Run training
         run: python train.py
-
-      - name: Upload model info
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: model-info
           path: model_info.txt
 
   deploy:
-    runs-on: ubuntu-latest
     needs: validate
-
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-
-      - name: Install dependencies
-        run: pip install mlflow
-
-      - name: Download model info
+          python-version: 3.10
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: model-info
-
-      - name: Check accuracy threshold
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          path: .
+      - name: Check accuracy
         run: python check_threshold.py
-
       - name: Mock Docker build
-        run: echo "Building Docker image for Run ID: $(cat model_info.txt)"
+        run: echo "Building Docker image for accuracy $(cat model_info.txt)"
