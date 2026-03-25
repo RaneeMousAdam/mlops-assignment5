@@ -1,0 +1,22 @@
+FROM python:3.10-sli
+
+# Accept the MLflow Run ID as a build argument
+ARG RUN_ID
+
+# Log which run is being packaged (simulates model download)
+RUN echo "Packaging model for Run ID: ${RUN_ID}"
+RUN echo "Simulating: mlflow artifacts download --run-id ${RUN_ID} --dst-path /app/model"
+
+WORKDIR /app
+
+# Copy application code
+COPY train.py .
+COPY requirements.txt .
+
+# Install runtime dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Store the run ID so the container knows which model it carries
+ENV MODEL_RUN_ID=${RUN_ID}
+
+CMD ["echo", "Model container ready"]
